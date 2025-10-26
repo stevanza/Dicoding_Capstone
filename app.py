@@ -4,8 +4,8 @@ import numpy as np
 import xgboost as xgb
 import shap
 import joblib
-import streamlit_shap as st_shap
-# Baris 'from IPython.display' telah dihapus karena tidak kompatibel dengan Streamlit
+from streamlit_shap import st_shap
+import matplotlib.pyplot as plt # Impor pyplot
 
 # --- Konfigurasi Halaman ---
 st.set_page_config(
@@ -14,10 +14,54 @@ st.set_page_config(
     layout="wide"
 )
 
+# --- Kustomisasi Tema (Warm Background) ---
+# Menambahkan CSS kustom untuk latar belakang yang hangat
+st.markdown(
+    """
+    <style>
+    /* Target the main app container's content block */
+    [data-testid="stAppViewContainer"] > .main {
+        background-color: #FDFCF5 !important; /* Paksa latar belakang hangat */
+    }
+    
+    /* Target semua elemen teks di dalam .main agar kontras */
+    /* Ini lebih spesifik daripada .stApp */
+    .main, 
+    .main h1, 
+    .main h2, 
+    .main h3, 
+    .main p, 
+    .main li, 
+    .main .stMarkdown, 
+    .main .stWrite,
+    .main .stError, /* Atur teks error agar gelap */
+    .main .stSuccess { /* Atur teks sukses agar gelap */
+        color: #0E1117 !important; /* Paksa teks menjadi gelap */
+    }
+
+    /* Pastikan label expander juga memiliki teks gelap */
+    .main [data-testid="stExpander"] summary {
+        color: #0E1117 !important;
+    }
+
+    /* Khusus untuk st.error dan st.success, kita mungkin ingin latarnya
+       tetap ada, tapi teksnya gelap. Selektor di atas sudah menangani teks.
+       Jika Anda ingin mengubah latar st.error/st.success juga, 
+       tambahkan aturan di sini. */
+
+    /* Biarkan sidebar dan header menggunakan tema default (gelap) */
+    /* [data-testid="stSidebar"] { ... } */
+    /* [data-testid="stHeader"] { ... } */
+    
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # --- Judul dan Deskripsi ---
 st.title("🛡️ Sistem Deteksi Penipuan Transaksi Keuangan")
 st.write("""
-Aplikasi ini menggunakan model Machine Learning (XGBoost) dan Explainable AI (SHAP) 
+Aplikasi ini menggunakan model Machine Learning (XGRequest) dan Explainable AI (SHAP) 
 untuk memprediksi apakah sebuah transaksi merupakan penipuan dan menjelaskan alasannya.
 Masukkan detail transaksi di sidebar kiri untuk memulai analisis.
 """)
@@ -44,6 +88,7 @@ def load_explainer(_model):
     """
     Membuat dan menyimpan SHAP explainer
     """
+    # FIX: Menggabungkan shap.TreeExplainer ke satu baris
     return shap.TreeExplainer(_model)
 
 # Memuat artefak
@@ -111,17 +156,28 @@ if st.sidebar.button("Analisis Transaksi"):
         shap_values = explainer.shap_values(input_df)
         expected_value = explainer.expected_value
         
-        # Menggunakan streamlit_shap untuk merender plot
-        st_shap(shap.force_plot(
+        # FIX: Bypass st_shap dan gunakan st.pyplot secara langsung
+        # 1. Buat plot SHAP dan dapatkan objek Figure (fig)
+        # Kita tambahkan plt.clf() untuk membersihkan figur sebelumnya
+        plt.clf()
+        fig = shap.force_plot(
             expected_value,
             shap_values[0],
             input_df.iloc[0],
-            matplotlib=False # Menggunakan versi JS yang interaktif
-        ), height=160, width=1000)
-
+            matplotlib=True,
+            show=False # Penting: agar mengembalikan fig, bukan menampilkannya
+        )
+        
+        # 2. Tampilkan fig menggunakan st.pyplot dengan use_container_width
+        if fig:
+            st.pyplot(fig, use_container_width=True)
+        else:
+            st.warning("Tidak dapat membuat plot SHAP.")
+        
         # Menampilkan detail fitur
         with st.expander("Lihat Data Input yang Telah Diproses Model"):
             st.dataframe(input_df)
 
     else:
         st.error("Model belum dimuat. Periksa pesan error di atas.")
+
