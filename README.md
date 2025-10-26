@@ -62,14 +62,13 @@ Letakkan file archive.zip yang telah diunduh ke dalam folder proyek Anda.
 
 3. Struktur Folder
 
-Pastikan struktur folder Anda terlihat seperti ini agar aplikasi dapat berjalan dengan benar:
-
 .
-├── app.py                  # Skrip utama aplikasi Streamlit
-├── fraud_detection_notebook.py # Notebook untuk analisis dan pelatihan model
-├── xgboost_model.joblib    # File model XGBoost yang sudah dilatih
-├── model_columns.joblib    # Daftar kolom yang digunakan saat pelatihan
-└── requirements.txt        # Daftar dependensi Python
+
+├── app.py                  
+├── fraud_detection_notebook.py 
+├── xgboost_model.joblib    
+├── model_columns.joblib    
+└── requirements.txt        
 
 
 4. Latih Model (Opsional - Lewati jika menggunakan model bawaan)
@@ -94,7 +93,7 @@ python3 -m venv venv
 # Aktifkan (di macOS/Linux)
 source venv/bin/activate
 # atau (di Windows)
-# venv\Scripts\activate
+venv\Scripts\activate
 
 # Instal semua library yang dibutuhkan
 pip install -r requirements.txt
