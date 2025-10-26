@@ -87,12 +87,12 @@ Sel terakhir akan menyimpan file xgboost_model.joblib dan model_columns.joblib y
 
 Sangat disarankan untuk membuat virtual environment agar tidak mengganggu instalasi Python utama Anda.
 
-# Buat virtual environment (opsional tapi disarankan)
+# Buat virtual environment (opsional)
 python3 -m venv venv
 
 # Aktifkan (di macOS/Linux)
 source venv/bin/activate
-# atau (di Windows)
+# (di Windows)
 venv\Scripts\activate
 
 # Instal semua library yang dibutuhkan
